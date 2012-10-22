@@ -1,54 +1,30 @@
-var ReadWriteStream = require("read-write-stream")
-    , livereload = require("live-reload")(8081)
-    , insert = require("insert")
-    , chain = require("chain-stream")
+var livereload = require("live-reload")(8081)
+    // , store = require("local-store")("todo-stream")
+    , forEach = require("chain-stream").forEach
 
     , State = require("./lib/state")
-    , TodoListComponent = require("./todoList.js")
+    , initial = require("./initial")
+    , TodoListWidget = require("./todoListWidget")
 
-    , source = window.source = ReadWriteStream().stream
-    , summaries = chain.map(State(source), State.toSummary)
-    , todoList = TodoListComponent(summaries)
+/*
+    State contains the central state of the application
 
-todoList.stream.pipe(source)
+    You create it and send it to everyone else
 
-insert.prepend(document.body, todoList.root)
-
-/* TODO:
-
-    - persistance
-    - routing
-    X new todo
-    X mark all as complete
-    X Item
-      X clicking done
-      X edit mode
-      X destroy
-    X Editing
-    X Counter
-    X Clear completed
+        - state.patch(changes) patches the current
+            state with those changes
+        - state itself is pipeable and contains a
+            stream of the current state
+        - state.changes is pipeable and contains a
+            stream of only the changes
+        - state.summaries is pipeable and contains a
+            stream of change summaries
 
 */
+var state = window.state = State()
+var todoList = TodoListWidget(state, document.body)
 
-// Initial interactions
-source.write({
-    id: 1
-    , completed: false
-    , title: "foo"
-})
+forEach(todoList, state.patch)
 
-setTimeout(function () {
-    source.write({
-        id: 1
-        , completed: true
-        , title: "bar"
-    })
-}, 1000)
-
-setTimeout(function () {
-    source.write({
-        id: 1
-        , __deleted__: true
-    })
-}, 2000)
-
+// Initial manipulations for debugging purposes
+initial(state)

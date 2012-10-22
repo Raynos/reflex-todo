@@ -33,7 +33,11 @@
     "dom-walk": "0.0.1",
     "for-each": "~0.1.0",
     "class-list": "0.0.1",
-    "events-stream": "~0.2.0"
+    "events-stream": "~0.2.0",
+    "local-store": "~0.2.0",
+    "method": "~0.1.1",
+    "to-array": "~0.1.3",
+    "not": "~0.1.0"
   },
   "devDependencies": {
     "tap": "~0.3.1",
