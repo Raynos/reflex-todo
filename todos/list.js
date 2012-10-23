@@ -5,11 +5,11 @@ var unpack = require("unpack-element")
     , events = require("events-stream")
     , prepend = require("insert").prepend
 
-    , Widget = require("./lib/widget")
-    , TodoWidget = require("./todoWidget")
+    , Widget = require("../reflex/widget")
+    , TodoWidget = require("./todo")
     , todoListHtml = require("./todoList.html")
-    , equal = require("./lib/equal")
-    , method = require("./lib/method")
+    , equal = require("../lib/equal")
+    , method = require("../lib/method")
     , states = require("./states")
     , todos = states.todos
     , counters = states.counters
@@ -25,7 +25,7 @@ var unpack = require("unpack-element")
 
             return component
         }
-        , function renderTodos(state, component) {
+        , [function renderTodos(state, component) {
             TodoWidget(state, todos(state), component)
         }
         , function itemsLeft(state, component) {
@@ -88,7 +88,17 @@ var unpack = require("unpack-element")
                     }
                 })
         }
-    )
+        , function clears(state, component) {
+            var clearEvents = events(component.clear, "click")
+
+            return chain(clearEvents)
+                .map(function () {
+                    return {
+                        operation: "clearCompleted"
+                    }
+                })
+        }
+    ])
 
 module.exports = TodoListWidget
 

@@ -1,7 +1,10 @@
 var chain = require("chain-stream")
     , reductions = chain.reductions
     , filter = chain.filter
+    , map = chain.map
     , not = require("not")
+
+    , State = require("../reflex/state")
 
 module.exports = {
     counters: counters
@@ -26,9 +29,11 @@ function counters(state) {
 }
 
 function todos(state) {
-    return filter(state.summaries, function (summary) {
-        return isTodo(summary.name)
-    })
+    return chain(state)
+        .concatMap(State.summary)
+        .filter(function (summary) {
+            return isTodo(summary.name)
+        })
 }
 
 function toBoolean(value) {

@@ -2,9 +2,10 @@ var livereload = require("live-reload")(8081)
     // , store = require("local-store")("todo-stream")
     , forEach = require("chain-stream").forEach
 
-    , State = require("./lib/state")
+    , State = require("./reflex/state")
     , initial = require("./initial")
-    , TodoListWidget = require("./todoListWidget")
+    , TodoListWidget = require("./todos/list")
+    , TodoOperations = require("./todos/operations")
 
 /*
     State contains the central state of the application
@@ -23,6 +24,7 @@ var livereload = require("live-reload")(8081)
 */
 var state = window.state = State()
 var todoList = TodoListWidget(state, document.body)
+var operations = TodoOperations(state)
 
 forEach(todoList, state.patch)
 

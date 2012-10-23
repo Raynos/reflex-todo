@@ -2,7 +2,7 @@ var append = require("insert").append
     , unpack = require("unpack-element")
     , Element = require("fragment").Element
 
-    , ListWidget = require("./lib/widget").ListWidget
+    , ListWidget = require("../reflex/listWidget")
     , todoHtml = require("./todo.html")
 
     , TodoWidget = ListWidget(
