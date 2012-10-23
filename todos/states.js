@@ -6,6 +6,14 @@ var chain = require("chain-stream")
 
     , State = require("../reflex/state")
 
+/*
+    States are a set of forking functions that can be called
+        on the entire application state to give a view into
+        a subset of the state.
+
+    This is used to move the forking logic out of the widgets
+        and allow re-usal of the forks
+*/
 module.exports = {
     counters: counters
     , todos: todos

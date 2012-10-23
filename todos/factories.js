@@ -1,5 +1,11 @@
 var uuid = require("node-uuid")
 
+/*
+    Factories are needed because the patch api is ugly.
+
+    It's also needed to remove the todo structure information
+        from the actual interaction functions
+*/
 module.exports = {
     newTodo: newTodo
     , changeCompleted: changeCompleted
