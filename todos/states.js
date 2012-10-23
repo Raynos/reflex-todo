@@ -9,6 +9,7 @@ var chain = require("chain-stream")
 module.exports = {
     counters: counters
     , todos: todos
+    , isTodo: isTodo
 }
 
 function counters(state) {
@@ -30,7 +31,7 @@ function counters(state) {
 
 function todos(state) {
     return chain(state)
-        .concatMap(State.summary)
+        .concatMap(State.toSummaries)
         .filter(function (summary) {
             return isTodo(summary.name)
         })

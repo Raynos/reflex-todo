@@ -6,6 +6,7 @@ var unpack = require("unpack-element")
     , prepend = require("insert").prepend
 
     , Widget = require("../reflex/widget")
+    , Writer = require("../reflex/writer")
     , TodoWidget = require("./todo")
     , todoListHtml = require("./todoList.html")
     , equal = require("../lib/equal")
@@ -15,6 +16,7 @@ var unpack = require("unpack-element")
     , counters = states.counters
     , factories = require("./factories")
     , newTodo = factories.newTodo
+    , operation = require("../reflex/state").operation
 
     , ENTER = 13
     , TodoListWidget = Widget(
@@ -26,47 +28,41 @@ var unpack = require("unpack-element")
             return component
         }
         , [function renderTodos(state, component) {
-            TodoWidget(state, todos(state), component)
+            return TodoWidget(state, todos(state), component)
         }
-        , function itemsLeft(state, component) {
-            forEach(counters(state), function (counter) {
-                var text = component.countText
-                    , count = counter.remaining
+        , Writer(counters, function (counter, component) {
+            var text = component.countText
+                , count = counter.remaining
 
-                if (count === 1) {
-                    text.textContent = "item left"
-                } else {
-                    text.textContent = "items left"
-                }
+            if (count === 1) {
+                text.textContent = "item left"
+            } else {
+                text.textContent = "items left"
+            }
 
-                component.count.textContent = count
-            })
-        }
-        , function completedCount(state, component) {
-            forEach(counters(state), function (counter) {
-                component.completedCount.textContent =
-                    counter.completed
-            })
-        }
-        , function allCompleted(state, component) {
-            forEach(counters(state), function (counter) {
-                var all = component.all
-                    , remaining = counter.remaining
-                    , completed = counter.completed
+            component.count.textContent = count
+        })
+        , Writer(counters, function (counter, component) {
+            component.completedCount.textContent =
+                counter.completed
+        })
+        , Writer(counters, function (counter, component) {
+            var all = component.all
+                , remaining = counter.remaining
+                , completed = counter.completed
 
-                if (remaining === 0 && completed > 0) {
-                    all.checked = true
-                } else {
-                    all.checked = false
-                }
-            })
-        }
+            if (remaining === 0 && completed > 0) {
+                all.checked = true
+            } else {
+                all.checked = false
+            }
+        })
         , function input(state, component) {
             var inputEvents = events(component.input, "keypress")
 
             return chain(inputEvents)
                 .filter(equal("keyCode", ENTER))
-                .map(function (event) {
+                .map(function getFieldValue(event) {
                     var input = event.target
                         , value = input.value
 
@@ -82,21 +78,13 @@ var unpack = require("unpack-element")
             var toggleEvents = events(component.all, "click")
 
             return chain(toggleEvents)
-                .map(function () {
-                    return {
-                        operation: "allCompleted"
-                    }
-                })
+                .map(operation("allCompleted"))
         }
         , function clears(state, component) {
             var clearEvents = events(component.clear, "click")
 
             return chain(clearEvents)
-                .map(function () {
-                    return {
-                        operation: "clearCompleted"
-                    }
-                })
+                .map(operation("clearCompleted"))
         }
     ])
 

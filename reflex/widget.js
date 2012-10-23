@@ -8,8 +8,8 @@ module.exports = Widget
 
 /*
     Widget(
-        create Func<input, parent> : component
-        , Array [children<input, component> : Stream]
+        create Func<input, parent> -> component
+        , children Array[Func<input, component> -> Stream]
     ) -> Func<input, parent> -> Stream
 
     Widget is a function which takes a creation function and

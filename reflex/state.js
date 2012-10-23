@@ -12,8 +12,10 @@ var chain = require("chain-stream")
     , toChanges = prop(changesName)
     , toSummaries = prop(summaryName)
 
-State.changes = toChanges
-State.summary = toSummaries
+State.toChanges = toChanges
+State.toSummaries = toSummaries
+State.operation = operation
+State.isOperation = isOperation
 
 module.exports = State
 
@@ -118,6 +120,33 @@ function accumulate(previousState, changes) {
     nonEnumerable(currentState, summaryName, summaries)
 
     return currentState
+}
+
+/*
+    Func<name> -> Func -> OperationData
+
+    Function that takes an operation name and returns an
+        operation structure for that name
+*/
+function operation(name) {
+    return function () {
+        return {
+            operation: {
+                value: name
+            }
+        }
+    }
+}
+
+/*
+    Func<name> -> Func<state> -> Boolean
+*/
+function isOperation(name) {
+    return function (state) {
+        var operation = state[changesName].operation
+
+        return operation && operation.value === name
+    }
 }
 
 function nonEnumerable(obj, key, value) {

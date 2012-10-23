@@ -7,10 +7,10 @@ module.exports = ListWidget
 
 /*
     ListWidget(
-        create Func<input, parent> component
+        create Func<input, parent, value> -> component
         , update Func<value, oldValue, component>
         , destroy Func<component, parent>
-        , Array [children<input, component> : Stream]
+        , children Array[Func<input, component> -> Stream]
     ) -> Func<input, Stream<summary>, parent> -> Stream
 
     ListWidget is a function which takes a creation, updation,
@@ -60,13 +60,13 @@ function ListWidget(create, update, destroy, children) {
                 , component = hash[id]
 
             if (type === "new") {
-                component = hash[id] = create(input, parent)
+                component = hash[id] = create(input, parent, summary)
 
                 update(value, oldValue, component)
 
                 children
                     .map(function (f) {
-                        f(input, component)
+                        return f(input, component)
                     })
                     .filter(toBoolean)
                     .forEach(mergeStream, queue.push)

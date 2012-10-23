@@ -23,6 +23,11 @@ var livereload = require("live-reload")(8081)
 
 */
 var state = window.state = State()
+
+// forEach(state, function (state) {
+//     console.log("state", state)
+// })
+
 var todoList = TodoListWidget(state, document.body)
 var operations = TodoOperations(state)
 
