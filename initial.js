@@ -1,19 +1,27 @@
+var emit = require("reducers/emit")
+
 module.exports = initial
 
 function initial(state) {
-    state.patch("todo:1", {
-        completed: false
-        , title: "foo"
+    emit(state, {
+        "todo:1": {
+            completed: false
+            , title: "foo"
+        }
     })
 
     setTimeout(function () {
-        state.patch("todo:1", {
-            completed: true
-            , title: "bar"
+        emit(state, {
+            "todo:1": {
+                completed: true
+                , title: "bar"
+            }
         })
     }, 1000)
 
     setTimeout(function () {
-        state.patch("todo:1", null)
+        emit(state, {
+            "todo:1": null
+        })
     }, 2000)
 }

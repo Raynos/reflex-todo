@@ -1,159 +1,75 @@
-var chain = require("chain-stream")
-    , reductions = chain.reductions
-    , map = chain.map
-    , concatMap = chain.concatMap
-    , extend = require("xtend")
-    , forEach = require("for-each")
-    , ReadStream = require("read-stream")
-    , prop = require("prop")
+/* vim:set ts=2 sw=2 sts=2 expandtab */
+/*jshint asi: true undef: true es5: true node: true devel: true
+         forin: true latedef: false globalstrict: true*/
+/*global parent:true */
 
-    , changesName = "changes@" + module.id.replace(/\./g, "")
-    , summaryName = "summaries@" + module.id.replace(/\./g, "")
-    , toChanges = prop(changesName)
-    , toSummaries = prop(summaryName)
+"use strict";
 
-State.toChanges = toChanges
-State.toSummaries = toSummaries
-State.operation = operation
-State.isOperation = isOperation
+var diff = require("diffpatcher/diff")
+var patch = require("diffpatcher/patch")
+var rebase = require("diffpatcher/rebase")
+var channel = require("reducers/channel")
+var timestamp = require("monotonic-timestamp")
 
-module.exports = State
-
-/*
-    State generates a central place for your application state
-
-    A state instance is a stream of the current state.
-
-    ## patch
-
-    `state.patch` allows you to patch the current state
-        with a new change. A change looks like
-
-        {
-            valueId: newValue
-        }
-
-    If the valueId hasn't been seen before a "new" summary
-        will be made and it will be merged into the current
-        state
-
-    If the newValue is `null` the valueId will be removed from
-        the current state and a "deleted" summary will be made
-
-    If the valueId already exists and the newValue is not `null`
-        then the newValue will be shallow merged into the
-        existing value and a "updated" summary will be made
-
-    ## summary
-
-    `State.summary` takes a state and returns the change summary
-        for the state based on what's changed since the previous
-        state.
-
-    A summary is a record that looks like
-
-        {
-            type: "new" or "deleted" or "updated"
-            , name: id
-            , value: currentValue
-            , oldValue: oldValue
-        }
-
-    ## changes
-
-    `State.changes` takes a state and returns the actual changes
-        that were applied on it since the previous state. i.e.
-        the value of the last `patch` call.
-*/
-function State() {
-    var state = ReadStream()
-        , stream = state.stream
-        , states = reductions(stream, accumulate, {})
-
-    states.patch = patch
-
-    return states
-
-    function patch(changes, value) {
-        if (arguments.length === 2) {
-            var id = changes
-            changes = {}
-            changes[id] = value
-        }
-
-        state.push(changes)
+var make = Object.create || (function() {
+    function Type() {}
+    return function make(prototype) {
+        Type.prototype = prototype
+        return new Type()
     }
-}
+})()
 
-function accumulate(previousState, changes) {
-    var currentState = extend({}, previousState)
-        , summaries = []
+// Generated unique name is used to store `delta` on the state object
+// which is object containing changes from previous state to current.
+var delta = "delta@" + module.id
+var id = "uuid@" + module.id
+var parent = "parent@" + module.id
 
-    forEach(changes, function (change, id) {
-        var oldValue = currentState[id] || {}
-            , summary = {}
-            , newValue = null
+// State is a type used for representing application states. Primarily
+// reason to have a type is to have an ability implement polymorphic
+// methods for it.
+function State() {}
 
-        if (change) {
-            newValue = extend({}, oldValue, change)
-        }
-
-        if (!(id in currentState)) {
-            summary.type = "new"
-        } else if (change === null) {
-            summary.type = "deleted"
-            summary.oldValue = oldValue
-        } else {
-            summary.type = "updated"
-            summary.oldValue = oldValue
-        }
-
-        summary.name = id
-        summary.value = newValue
-
-        currentState[id] = newValue
-
-        summaries.push(summary)
-    })
-
-    nonEnumerable(currentState, changesName, changes)
-    nonEnumerable(currentState, summaryName, summaries)
-
-    return currentState
-}
-
-/*
-    Func<name> -> Func -> OperationData
-
-    Function that takes an operation name and returns an
-        operation structure for that name
-*/
-function operation(name) {
-    return function () {
-        return {
-            operation: {
-                value: name
-            }
-        }
+// Returns diff that has being applied to a previous state to get to a
+// current one.
+diff.define(State, function diff(from, to) {
+    // If state does not contains delta property then it's initial,
+    // so diff to get to the current state should be a diff itself.
+    if (to[parent] === from[id]) {
+        return to[delta]
     }
-}
 
-/*
-    Func<name> -> Func<state> -> Boolean
-*/
-function isOperation(name) {
-    return function (state) {
-        var operation = state[changesName].operation
+    return diff.calculate(from, to)
+})
 
-        return operation && operation.value === name
+// Patches given `state` with a given `diff` creating a new state that is
+// returned back.
+patch.define(State, function patch(state, id, value) {
+    var diff = id
+    if (arguments.length === 3) {
+        diff = {}
+        diff[id] = value
     }
-}
 
-function nonEnumerable(obj, key, value) {
-    Object.defineProperty(obj, key, {
-        writable: true
-        , value: value
-        , enumerable: false
-        , configurable: true
-    })
+    var value = new State()
+    // Store `diff` is stored so that it can be retrieved without calculations.
+    value[delta] = diff
+    value[parent] = state[id]
+
+    return rebase(make(value), state, diff)
+})
+
+
+function state() {
+    /**
+    Creates an object representing a state snapshot.
+    **/
+    var value = new State()
+    value[id] = timestamp()
+    value[parent] = null
+    return make(value)
 }
+state.type = State
+state.delta = delta
+
+module.exports = state

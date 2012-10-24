@@ -26,7 +26,7 @@ var append = require("insert").append
 
             component.id = summary.name
 
-            append(parent.list, component.root)
+            append(parent.list, root)
 
             forEach(events(component.text, "dblclick")
                 , function (event) {
@@ -52,10 +52,10 @@ var append = require("insert").append
                 } else {
                     ClassList(component.root).remove("completed")
                 }
-
             }
         }
         , function destroyTodo(component, parent) {
+            console.log("destroy", arguments)
             parent.list.removeChild(component.root)
         }
         , [function toggles(state, component) {
