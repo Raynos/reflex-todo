@@ -5,40 +5,63 @@
 "use strict";
 
 var reduce = require("reducers/reduce")
+var buffer = require("reducers/buffer")
+var channel = require("reducers/channel")
+var emit = require("reducers/emit")
+var isSummary = require("./summaries").isSummary
 
 function writer(swap, open, close) {
-    /**
-    Writer allows you to create write functions like this one:
-    function html(tagName) {
-        return writer(function swap(element, state) {
-            element.textContent = state
-        }, function open(state) {
-            return document.createElement(tagName)
-        }, function close(element) {
-            if (element.parentElement)
-            element.parentElement.removeChild(element)
-        })
-    }
-    var h1 = html("h1")
-    var input = channel()
-
-    var element = h1(input)
-    element.outerHTML // => <h1></h1>
-
-    enqueue(channel, "hello")
-    element.outerHTML // => <h1>hello</h1>
-    **/
+    var hash = {}
 
     return function write(input, options) {
-        var output = open(options)
+        var stream = buffer(channel())
+        var output
+
+        // var output = open(options)
         reduce(input, function(_, update) {
+            if (isSummary(update)) {
+                return handleSummary(update)
+            }
+
+            if (!output) {
+                output = open(options)
+                emit(stream, output)
+            }
+
             if (update === null) {
                 close(output, options)
             } else {
                 swap(output, update)
             }
         })
-        return output
+
+        return stream
+
+        function handleSummary(update) {
+            var id = update.name
+            var value = update.value
+            var type = update.type
+            var oldValue = update.oldValue
+            var current = hash[id]
+            var res
+
+            if (type === "new") {
+                var output = hash[id] = open(options, value)
+
+                res = swap(output, value)
+
+                emit(stream, output)
+            } else if (type === "updated") {
+                res = swap(current, value, oldValue)
+            } else if (type === "deleted") {
+                close(current, options)
+                ;delete hash[id]
+            }
+
+            if (res) {
+                hash[id] = res
+            }
+        }
     }
 }
 

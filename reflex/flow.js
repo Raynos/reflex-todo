@@ -7,12 +7,12 @@ module.exports = flow
 
 function flow(initial) {
     var stream = channel()
-    var states = reductions(stream, function (state, delta) {
-        return patch(state, delta)
-    }, state(initial))
+    var orig = state(initial)
+    var states = reductions(stream, patch, orig)
 
     return {
         output: states
         , input: stream
+        , initial: orig
     }
 }

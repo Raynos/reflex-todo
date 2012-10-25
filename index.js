@@ -34,6 +34,6 @@ if (initialState) {
 initial(state.input)
 
 function saveState(current) {
-    console.log("current", current)
+    // console.log("current", current)
     store.set("state", current)
 }
