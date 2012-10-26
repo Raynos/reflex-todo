@@ -11,7 +11,7 @@ function Summary() {}
 function summaries(stream, initial) {
     var previous = initial || {}
 
-    return expand(stream.output, createSummary)
+    return expand(stream, createSummary)
 
     function createSummary(current) {
         var diff = current[delta]
