@@ -7,16 +7,11 @@ var remove = require("insert").remove
 module.exports = Remaining
 
 function Remaining(parent) {
-    var writer = Writer(swap, open, close)
-
-    return call
-
-    function call(stream) {
-        writer(stream)
+    return function reactor(changes) {
+        Writer(swap, open, close)(changes)
     }
 
     function open(options, value) {
-        console.log("open", arguments)
         var component = html(itemsLeftHtml)
 
         parent(component.root)
@@ -26,7 +21,6 @@ function Remaining(parent) {
 }
 
 function swap(component, count) {
-    console.log("swap", count)
     var text = component.countText
 
     if (count === 1) {

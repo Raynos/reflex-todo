@@ -41,12 +41,12 @@ function TodoList(parent) {
                 "todo": TodoItem(partial(append, component.list))
                 , "count": [
                     Unit({
-                        // completed: CompletedCount(partial(
-                        //     append, component.footer))
-                        remaining: RemainingCount(partial(
+                        completed: CompletedCount(partial(
+                            append, component.footer))
+                        , remaining: RemainingCount(partial(
                             prepend, component.footer))
                     })
-                    // , AllCompleted(partial(prepend, component.main))
+                    , AllCompleted(partial(prepend, component.main))
                 ]
             })
 

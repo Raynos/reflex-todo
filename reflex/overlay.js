@@ -4,6 +4,8 @@ var state = require("./state")
 
 var reductions = require("reducers/reductions")
 var hub = require("reducers/hub")
+var channel = require("reducers/channel")
+var pipe = require("reducers/pipe")
 
 var patch = require("diffpatcher/patch")
 var diff = require("diffpatcher/diff")
@@ -38,17 +40,9 @@ function overlay(mapping) {
     **/
     var previous = state()
     var overlay = state()
+    var fresh = channel()
 
-    var reduce = require("reducers/reduce")
-
-    console.log("once")
-    reduce(input, function (_, change) {
-      console.log("change", change)
-    })
-
-
-    return hub(reductions(input, function(_, delta) {
-      console.log("delta", delta)
+    var transformed = reductions(input, function(_, delta) {
       // Compute current state without changes to computed properties
       // by applying `delta` to a previous state with computed properties.
       var current = patch(previous, delta)
@@ -80,7 +74,11 @@ function overlay(mapping) {
       // so that reactors down the flow will react on updates with computed
       // properties.
       return delta
-    }))
+    })
+
+    pipe(transformed, fresh)
+
+    return fresh
   }
 }
 

@@ -16,8 +16,6 @@ module.exports = Overlay({
                 , remaining: count - completed
             }
 
-        // console.log("count", current)
-
         return count
     }
 })
