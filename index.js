@@ -26,7 +26,7 @@ var prepend = require("insert").prepend
         We want to have the changes flow through the persistance
             mechanism and the todoList
     */
-    , app = [todoList, persist]
+    , app = [todoList]
 
 /*
     For each one create the input stream by passing in the

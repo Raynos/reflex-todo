@@ -4,6 +4,7 @@ var map = require("reducers/map")
 var channel = require("reducers/channel")
 var flatten = require("reducers/flatten")
 var emit = require("reducers/emit")
+var concat = require("reducers/concat")
 
 module.exports = Component
 
@@ -24,7 +25,8 @@ function Component(read, write) {
 
                 hash[id] = true
 
-                var fork = filter(changes, exists)
+                var items = concat(change, changes)
+                var fork =  filter(items, exists)
                 var updates = map(fork, attribute)
                 var readable = write(updates, options)
                 var input = read(readable)
