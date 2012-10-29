@@ -17,27 +17,12 @@
     "email": "raynos2@gmail.com"
   },
   "dependencies": {
-    "browserify-server": "~1.2.4",
-    "live-reload": "~0.1.1",
-    "local-store": "~0.2.0",
-    "reducers": "~0.1.1",
-    "diffpatcher": "0.0.1",
-    "monotonic-timestamp": "0.0.3",
-    "unpack-element": "~0.1.0",
-    "fragment": "~0.3.0",
-    "insert": "0.0.1",
-    "class-list": "0.0.1",
-    "not": "~0.1.0",
-    "dom-reduce": "0.0.1",
-    "node-uuid": "~1.4.0",
-    "dotty": "0.0.1",
-    "prop": "~0.1.1",
-    "xtend": "~1.0.3"
+    "browserify-server": "~2.0.3",
+    "live-reload": "~0.2.0",
+    "reducers": "~0.1.6",
+    "composite": "~0.2.3"
   },
-  "devDependencies": {
-    "tap": "~0.3.1",
-    "browserify-server": "~1.2.4"
-  },
+  "devDependencies": {},
   "licenses": [
     {
       "type": "MIT",

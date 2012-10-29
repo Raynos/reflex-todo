@@ -1,29 +1,34 @@
-var emit = require("reducers/emit")
-    , store = require("local-store")("reflex-todo")
-    , extend = require("xtend")
+var Store = require("local-store")
+    , reductions = require("reducers/reductions")
+    , patch = require("diffpatcher/patch")
+    , compose = require("composite")
 
-    , forEach = require("./lib/forEach")
-    , initial = require("./initial")
+    , state = require("./reflex/state")
+    , Writer = require("./reflex/writer")
 
-module.exports = persist
+/*
+    The persistance is a composition of a
 
-function persist(state) {
-    forEach(state.output, saveState)
+        - fork (fork the changes into states)
+        - writer. Open the store & write to it for each new
+            state
+        - reader. Return the initial state
+*/
+module.exports = compose(read, Writer(swap, open), states)
 
-    var initialState = store.get("state")
-
-    if (initialState) {
-        emit(state.input, initialState)
-    }
-
-    // Initial manipulations for debugging purposes
-    initial(state.input)
+function read(store) {
+    return store.get("state")
 }
 
-function saveState(current) {
-    var clone = extend({}, current)
+function swap(store, current) {
+    delete current.operation
+    store.set("state", current)
+}
 
-    ;delete clone.operation
-    // console.log("current", current)
-    store.set("state", clone)
+function open() {
+    return Store("reflex-todo")
+}
+
+function states(changes) {
+    return reductions(changes, patch, state())
 }

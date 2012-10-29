@@ -1,20 +1,30 @@
-var livereload = require("live-reload")(8081)
-    , prepend = require("insert").prepend
+var prepend = require("insert").prepend
+    , partial = require("ap").partial
+    , channel = require("reducers/channel")
 
-    , flow = require("./reflex/flow")
     , pipe = require("./lib/pipe")
-    , forEach = require("./lib/forEach")
     , persist = require("./persist")
     , TodoList = require("./todo")
 
     , body = document.body
-    , state = window.state = flow({ summary: "initial" })
-    , todoList = TodoList(state)
+    /*
+        Your application is actually a stream of changes.
+    */
+    , app = channel()
+    /*
+        For anything to happen you need to build reactors
+            that react to changes and return a stream of
+            inputs that need to be merged back in
+    */
+    , reactors = [
+        TodoList(partial(prepend, body))
+        , persist
+    ]
 
-pipe(todoList, state.input)
+reactors.forEach(function (reactor) {
+    var input = reactor(app)
+    pipe(input, app)
+})
 
-prepend(document.body, todoList.view)
-
-persist(state)
-
+// Expose require
 window.require = require

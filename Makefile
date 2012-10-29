@@ -1,2 +1,15 @@
+# Watch the file system. Re compile when folders change
+watch:
+	wr "make run" index.js reflex
+
+# Start live reload server used in dev
+reload:
+	live-reload --uri=./doc --delay=200
+
+# Build example
 run:
-	./node_modules/.bin/browserify-server
+	browserify-server index.js -o ./static/bundle.js
+
+# Run http-server to avoid CORS
+http:
+	browserify-server server ./static
