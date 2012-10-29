@@ -22,6 +22,7 @@ function read(store) {
 
 function swap(store, current) {
     delete current.operation
+    console.log("persisting", current)
     store.set("state", current)
 }
 
@@ -30,5 +31,7 @@ function open() {
 }
 
 function states(changes) {
+    console.log("states called")
+
     return reductions(changes, patch, state())
 }

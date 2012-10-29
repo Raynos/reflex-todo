@@ -5,26 +5,43 @@ var prepend = require("insert").prepend
     , pipe = require("./lib/pipe")
     , persist = require("./persist")
     , TodoList = require("./todo")
+    , initial = require("./initial")
 
     , body = document.body
     /*
-        Your application is actually a stream of changes.
+        Your application needs a single stream of changes
+            for which all changes flow too
     */
-    , app = channel()
+    , changes = channel()
     /*
-        For anything to happen you need to build reactors
-            that react to changes and return a stream of
-            inputs that need to be merged back in
-    */
-    , reactors = [
-        TodoList(partial(prepend, body))
-        , persist
-    ]
+        The root part of the application is the TodoList.
 
-reactors.forEach(function (reactor) {
-    var input = reactor(app)
-    pipe(input, app)
+        Pass it a function which tells you where to put the
+            DOM element for the todoList.
+
+        In this case prepend(body, elem)
+    */
+    , todoList = TodoList(partial(prepend, body))
+    /*
+        We want to have the changes flow through the persistance
+            mechanism and the todoList
+    */
+    , app = [todoList, persist]
+
+/*
+    For each one create the input stream by passing in the
+        changes stream and then pipe that back into the
+        changes stream to create a closed loop flow.
+*/
+app.forEach(function (reactor) {
+    pipe(reactor(changes), changes)
 })
+
+/*
+    Inject some initial input into the changes stream for
+        testing purpose
+*/
+initial(changes)
 
 // Expose require
 window.require = require

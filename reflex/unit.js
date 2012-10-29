@@ -1,11 +1,16 @@
 var filter = require("reducers/filter")
 var map = require("reducers/map")
 var flatten = require("reducers/flatten")
+var channel = require("reducers/channel")
+var reduce = require("reducers/reduce")
+var emit = require("reducers/emit")
 
 module.exports = Unit
 
 function Unit(mapping) {
-    return function reactor(changes, options) {
+    return function reactor(source, options) {
+        var changes = source || channel()
+
         var inputs = Object.keys(mapping).map(function (id) {
             var react = mapping[id]
             var fork = filter(changes, exists)
@@ -30,6 +35,18 @@ function Unit(mapping) {
             }
         })
 
-        return flatten(inputs)
+        var input = flatten(inputs)
+
+        if (!source) {
+            pipe(input, changes)
+        }
+
+        return source ? input : changes
     }
+}
+
+function pipe(input, output) {
+    reduce(input, function(_, x) {
+        emit(output, x)
+    })
 }

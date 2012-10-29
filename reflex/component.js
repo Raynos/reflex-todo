@@ -9,16 +9,16 @@ module.exports = Component
 
 function Component(read, write) {
     return function reactor(changes, options) {
-        var input = channel()
+        var inputs = channel()
         var hash = {}
 
         reduce(changes, function (_, change) {
             Object.keys(change).forEach(function (id) {
-                if (change[id] === null) {
-                    delete hash[id]
-                }
-
                 if (id in hash) {
+                    if (change[id] === null) {
+                        delete hash[id]
+                    }
+
                     return
                 }
 
@@ -30,7 +30,7 @@ function Component(read, write) {
                 var input = read(readable)
                 var deltas = map(input, expand)
 
-                emit(input, deltas)
+                emit(inputs, deltas)
 
                 function exists(data) {
                     return id in data
@@ -48,6 +48,6 @@ function Component(read, write) {
             })
         })
 
-        return flatten(input)
+        return flatten(inputs)
     }
 }

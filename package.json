@@ -19,7 +19,15 @@
   "dependencies": {
     "reducers": "~0.1.6",
     "composite": "~0.2.3",
-    "browserify-server": "~2.0.4"
+    "browserify-server": "~2.0.4",
+    "unpack-element": "~0.1.0",
+    "insert": "0.0.1",
+    "fragment": "~0.3.0",
+    "ap": "~0.1.0",
+    "local-store": "~0.2.0",
+    "diffpatcher": "0.0.1",
+    "monotonic-timestamp": "0.0.3",
+    "class-list": "0.0.1"
   },
   "devDependencies": {
     "wr": "~1.2.1",

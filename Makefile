@@ -1,6 +1,6 @@
 # Watch the file system. Re compile when folders change
 watch:
-	wr "make run" index.js reflex todo static lib
+	wr "make run" index.js initial.js persist.js todo reflex lib
 
 # Start live reload server used in dev
 reload:

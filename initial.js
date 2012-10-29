@@ -2,8 +2,8 @@ var emit = require("reducers/emit")
 
 module.exports = initial
 
-function initial(state) {
-    emit(state, {
+function initial(changes) {
+    emit(changes, {
         "todo": {
             "1": {
                 completed: false
@@ -13,7 +13,7 @@ function initial(state) {
     })
 
     setTimeout(function () {
-        emit(state, {
+        emit(changes, {
             "todo": {
                 "1": {
                     completed: true
@@ -24,7 +24,7 @@ function initial(state) {
     }, 1000)
 
     setTimeout(function () {
-        emit(state, {
+        emit(changes, {
             "todo": {
                 "1": null
             }
