@@ -1,10 +1,22 @@
 var ClassList = require("class-list")
     , remove = require("insert").remove
+    , reduce = require("reducers/reduce")
+    , map = require("reducers/map")
+    , flatten = require("reducers/flatten")
+    , filter = require("reducers/filter")
+    , events = require("dom-reduce/event")
+    , compound = require("compound")
+    , prop = require("prop")
+    , not = require("not")
 
     , Writer = require("../reflex/writer")
     , Component = require("../reflex/component")
     , html = require("../lib/html")
+    , method = require("../lib/method")
+    , equal = require("../lib/equal")
     , todoHtml = require("./html/todo")
+
+    , ENTER = 13
 
 module.exports = TodoItem
 
@@ -57,6 +69,64 @@ function close(component) {
     remove(component.root)
 }
 
-function read() {
+function read(component) {
+    var root = component.root
+        , input = component.input
 
+    compound
+        (reduce, function () {
+            ClassList(root).add("editing")
+            input.focus()
+        })
+        (events(component.text, "dblclick"))
+
+    var completions = compound
+        (map, prop("target.checked"))
+        (map, function (completed) {
+            return {
+                completed: completed
+            }
+        })
+        (events(component.toggle, "change"))
+
+    var destructions = compound
+        (map, nil)
+        (events(component.destroy, "click"))
+
+    compound
+        (filter, equal("keyCode", ENTER))
+        (reduce, function (_, event) {
+            event.target.blur()
+        })
+        (events(input, "keypress"))
+
+    var values = compound
+        (map, prop("target.value"))
+        (map, method("trim"))
+        (events(input, "blur"))
+
+    reduce(values, function(_, value) {
+        ClassList(root).remove("editing")
+    })
+
+    var deletions = compound
+        (filter, not(Boolean))
+        (map, nil)
+        (values)
+
+    var changes = compound
+        (filter, Boolean)
+        (map, function (text) {
+            return {
+                title: text
+            }
+        })
+        (values)
+
+    return flatten([ destructions, completions
+        , changes, deletions ])
+}
+
+function nil() {
+    return null
 }

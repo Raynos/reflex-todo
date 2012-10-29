@@ -1,7 +1,7 @@
 var Store = require("local-store")
     , reductions = require("reducers/reductions")
     , patch = require("diffpatcher/patch")
-    , compose = require("composite")
+    , compound = require("compound")
 
     , state = require("./reflex/state")
     , Writer = require("./reflex/writer")
@@ -14,7 +14,10 @@ var Store = require("local-store")
             state
         - reader. Return the initial state
 */
-module.exports = compose(read, Writer(swap, open), states)
+module.exports = (compound)
+    (states)
+    (Writer(swap, open))
+    (read)
 
 function read(store) {
     return store.get("state")

@@ -1,11 +1,21 @@
 var partial = require("ap").partial
     , insert = require("insert")
     , append = insert.append
+    , map = require("reducers/map")
+    , filter = require("reducers/filter")
+    , flatten = require("reducers/flatten")
+    , events = require("dom-reduce/event")
+    , compound = require("compound")
+    , uuid = require("node-uuid")
 
     , TodoItem = require("./item")
     , Unit = require("../reflex/unit")
     , html = require("../lib/html")
+    , equal = require("../lib/equal")
+    , method = require("../lib/method")
     , todoListHtml = require("./html/todoList")
+
+    , ENTER = 13
 
 module.exports = TodoList
 
@@ -19,11 +29,46 @@ module.exports = TodoList
     For each todoItem created it's appended to component.list
 */
 function TodoList(parent) {
-    var component = html(todoListHtml)
+    return function reactor(changes) {
+        var component = html(todoListHtml)
+            , unit = Unit({
+                "todo": TodoItem(partial(append, component.list))
+            })
 
-    parent(component.root)
+        parent(component.root)
 
-    return Unit({
-        "todo": TodoItem(partial(append, component.list))
-    })
+        return flatten([unit(changes), read(component)])
+    }
+}
+
+function read(component) {
+    return compound
+        (filter, function (ev) {
+            return equal("keyCode", ENTER)(ev)
+        })
+        (map, getFieldValue)
+        (filter, Boolean)
+        (map, method("trim"))
+        (map, function (title) {
+            var changes = {}
+
+            changes[uuid()] = {
+                title: title
+                , complted: false
+            }
+
+            return {
+                todo: changes
+            }
+        })
+        (events(component.input, "keypress"))
+}
+
+function getFieldValue(event) {
+    var input = event.target
+        , value = input.value
+
+    input.value = ""
+
+    return value
 }
