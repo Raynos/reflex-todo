@@ -9,6 +9,15 @@ var partial = require("ap").partial
 
 module.exports = TodoList
 
+/*
+    TodoList takes a parent function to pass the view onto
+        so the parent can handle the view.
+
+    TodoList is a Unit composed of
+        todo -> TodoItem.
+
+    For each todoItem created it's appended to component.list
+*/
 function TodoList(parent) {
     var component = html(todoListHtml)
 

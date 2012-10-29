@@ -17,7 +17,7 @@ var Store = require("local-store")
 module.exports = compose(read, Writer(swap, open), states)
 
 function read(store) {
-    // return store.get("state")
+    return store.get("state")
 }
 
 function swap(store, current) {

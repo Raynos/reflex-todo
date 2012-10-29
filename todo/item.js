@@ -8,6 +8,18 @@ var ClassList = require("class-list")
 
 module.exports = TodoItem
 
+/*
+    TodoItem is a Component of a write / read part.
+
+    The write part has swap, open and close.
+        when a new todo item is found we open a DOM element for it.
+        When a todo item is updated we swap the contents
+        When a todo item is removed we close the DOM element
+
+    When a new todo item is created (open is called on the writer)
+        we pass the component upto the parent to have it injected
+        into the DOM for us.
+*/
 function TodoItem(parent) {
     var write = Writer(swap, open, close)
 
