@@ -4,7 +4,7 @@ watch:
 
 # Start live reload server used in dev
 reload:
-	live-reload --uri=./doc --delay=200
+	live-reload
 
 # Build example
 run:

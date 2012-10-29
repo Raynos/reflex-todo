@@ -1,6 +1,8 @@
-var partial = require("ap").partial
+var compound = require("compound")
+    , partial = require("ap").partial
     , insert = require("insert")
     , append = insert.append
+    , prepend = insert.prepend
     , map = require("reducers/map")
     , filter = require("reducers/filter")
     , flatten = require("reducers/flatten")
@@ -14,6 +16,10 @@ var partial = require("ap").partial
     , equal = require("../lib/equal")
     , method = require("../lib/method")
     , todoListHtml = require("./html/todoList")
+    , computed = require("./computed")
+    , CompletedCount = require("./completed")
+    , RemainingCount = require("./remaining")
+    , AllCompleted = require("./allCompleted")
 
     , ENTER = 13
 
@@ -33,7 +39,22 @@ function TodoList(parent) {
         var component = html(todoListHtml)
             , unit = Unit({
                 "todo": TodoItem(partial(append, component.list))
+                , "count": [
+                    Unit({
+                        // completed: CompletedCount(partial(
+                        //     append, component.footer))
+                        remaining: RemainingCount(partial(
+                            prepend, component.footer))
+                    })
+                    // , AllCompleted(partial(prepend, component.main))
+                ]
             })
+
+        changes = computed(changes)
+
+        // require("reducers/reduce")(changes, function (_, v) {
+        //     console.log("value", v)
+        // })
 
         parent(component.root)
 

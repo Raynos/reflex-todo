@@ -32,7 +32,7 @@ function State() {}
 
 // Returns diff that has being applied to a previous state to get to a
 // current one.
-diff.define(State, function diff(from, to) {
+diff.define(State, function _diff(from, to) {
     // If state does not contains delta property then it's initial,
     // so diff to get to the current state should be a diff itself.
     if (to[parent] === from[id]) {

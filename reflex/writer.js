@@ -7,6 +7,8 @@ function Writer(update, open, close) {
         var readable = open(options)
 
         reduce(changes, function (_, change) {
+            console.log("writing", change, open)
+
             if (change === null) {
                 close(readable, options)
             } else {

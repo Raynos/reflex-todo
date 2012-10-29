@@ -1,8 +1,8 @@
 var prepend = require("insert").prepend
     , partial = require("ap").partial
     , channel = require("reducers/channel")
+    , pipe = require("reducers/pipe")
 
-    , pipe = require("./lib/pipe")
     , persist = require("./persist")
     , TodoList = require("./todo")
     , initial = require("./initial")
@@ -28,20 +28,22 @@ var prepend = require("insert").prepend
     */
     , app = [todoList]
 
-/*
-    For each one create the input stream by passing in the
-        changes stream and then pipe that back into the
-        changes stream to create a closed loop flow.
-*/
-app.forEach(function (reactor) {
-    pipe(reactor(changes), changes)
-})
+process.nextTick(function () {
+    /*
+        For each one create the input stream by passing in the
+            changes stream and then pipe that back into the
+            changes stream to create a closed loop flow.
+    */
+    app.forEach(function (reactor) {
+        pipe(reactor(changes), changes)
+    })
 
-/*
-    Inject some initial input into the changes stream for
-        testing purpose
-*/
-initial(changes)
+    /*
+        Inject some initial input into the changes stream for
+            testing purpose
+    */
+    initial(changes)
+})
 
 // Expose require
 window.require = require

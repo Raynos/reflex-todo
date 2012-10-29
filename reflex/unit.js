@@ -12,13 +12,16 @@ function Unit(mapping) {
         var changes = source || channel()
 
         var inputs = Object.keys(mapping).map(function (id) {
-            var react = mapping[id]
+            var reacts = mapping[id]
             var fork = filter(changes, exists)
             var updates = map(fork, attribute)
 
-            var input = react(updates, options)
+            var inputs = map(reacts, function (react) {
+                var input = react(updates, options)
+                return map(input, expand)
+            })
 
-            return map(input, expand)
+            return flatten(inputs)
 
             function exists(data) {
                 return id in data
